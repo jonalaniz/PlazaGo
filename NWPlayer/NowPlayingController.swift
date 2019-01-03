@@ -42,13 +42,13 @@ class NowPlayingController: UIViewController {
     let artistLabel: UILabel = {
         let label = UILabel()
         label.style()
-        label.text = "ACID.RAR"
+        label.text = ""
         label.font = UIFont(name: "HelveticaNeue-Bold", size: 28)
         return label
     }()
     
     let artworkImageView: UIImageView = {
-        let imageView = UIImageView(image: UIImage(named: "Album"))
+        let imageView = UIImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.contentMode = .scaleAspectFill
         return imageView
@@ -57,7 +57,7 @@ class NowPlayingController: UIViewController {
     let trackLabel: UILabel = {
         let label = UILabel()
         label.style()
-        label.text = " として D E C O R 褪せる"
+        label.text = ""
         label.font = UIFont(name: "HelveticaNeue-Thin", size: 28)
         return label
     }()
@@ -85,9 +85,13 @@ class NowPlayingController: UIViewController {
     
     let player: FRadioPlayer = FRadioPlayer.shared
     
+    let apiKey = LastFMAPI().apiKey
+    
     let station = Station().stations
     
     let deviceHeight = UIScreen.main.bounds.height
+    
+    var isHQ = true
     
     var track: Track? {
         didSet {
@@ -110,6 +114,7 @@ class NowPlayingController: UIViewController {
         constrainUI()
         
         selectStation(quality: station["High"]!)
+        //getArtworkURL(withTrack: "Stronger", withArtist: "Kanye West")
         
     }
     
@@ -122,11 +127,27 @@ class NowPlayingController: UIViewController {
     //********************************************************************
     
     @objc private func playBtnPressed() {
-        
+        if player.isPlaying {
+            player.pause()
+            playBtn.setImage(UIImage(named: "playBtn"), for: .normal)
+        } else {
+            player.play()
+            playBtn.setImage(UIImage(named: "pauseBtn"), for: .normal)
+        }
     }
     
     @objc private func changeQuality() {
-        
+        if isHQ {
+            isHQ = false
+            qualityBtn.setTitle("low", for: .normal)
+            qualityBtn.removeGlow()
+            selectStation(quality: station["Low"]!)
+        } else {
+            isHQ = true
+            qualityBtn.setTitle("high", for: .normal)
+            qualityBtn.addGlow()
+            selectStation(quality: station["High"]!)
+        }
     }
     
     private func selectStation(quality key: URL) {
@@ -186,7 +207,7 @@ class NowPlayingController: UIViewController {
         artworkImageView.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.4).isActive = true
         artworkImageView.widthAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.4).isActive = true
         
-        trackLabel.heightAnchor.constraint(equalToConstant: 30).isActive = true
+        trackLabel.heightAnchor.constraint(equalToConstant: 32).isActive = true
         trackLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
         trackLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 25).isActive = true
         trackLabel.topAnchor.constraint(equalTo: artworkImageView.bottomAnchor, constant: 10).isActive = true
@@ -207,6 +228,7 @@ class NowPlayingController: UIViewController {
 extension NowPlayingController: FRadioPlayerDelegate {
     
     func radioPlayer(_ player: FRadioPlayer, playerStateDidChange state: FRadioPlayerState) {
+        nwLabel.text = state.description
         print(state.description)
     }
     
@@ -215,6 +237,7 @@ extension NowPlayingController: FRadioPlayerDelegate {
     
     func radioPlayer(_ player: FRadioPlayer, metadataDidChange artistName: String?, trackName: String?) {
         track = Track(artist: artistName, name: trackName)
+        getArtworkURL(withTrack: trackName ?? "", withArtist: artistName ?? "")
     }
     
     func radioPlayer(_ player: FRadioPlayer, itemDidChange url: URL?) {
@@ -223,16 +246,78 @@ extension NowPlayingController: FRadioPlayerDelegate {
     
     func radioPlayer(_ player: FRadioPlayer, artworkDidChange artworkURL: URL?) {
         
-        // Please note that the following example is for demonstration purposes only, consider using asynchronous network calls to set the image from a URL.
-        guard let artworkURL = artworkURL, let data = try? Data(contentsOf: artworkURL) else {
-            artworkImageView.image = #imageLiteral(resourceName: "Album")
-            return
-        }
-        track?.image = UIImage(data: data)
-        artworkImageView.image = track?.image
-        //artworkImageView.animate()
         updateNowPlaying(with: track)
     }
+    
+    func getURL(withTrack track: String, withArtist artist: String) -> URL? {
+        var components = URLComponents()
+        
+        components.scheme = "https"
+        components.host = "ws.audioscrobbler.com"
+        components.path = "/2.0/"
+        let queryItemType = URLQueryItem(name: "method", value: "track.getInfo")
+        let queryItemKey = URLQueryItem(name: "api_key", value: apiKey)
+        let queryItemArtist = URLQueryItem(name: "artist", value: artist)
+        let queryItemTrack = URLQueryItem(name: "track", value: track)
+        let queryItemFormat = URLQueryItem(name: "format", value: "json")
+        components.queryItems = [queryItemType, queryItemKey, queryItemArtist, queryItemTrack,queryItemFormat]
+        print(components.url)
+        return components.url
+    }
+    
+    func getArtworkURL(withTrack track: String, withArtist artist: String) {
+        guard let url = getURL(withTrack: track, withArtist: artist) else { return }
+        URLSession.shared.dataTask(with: url) { (data, response, error) in
+            if error != nil {
+                print(error!)
+                return
+            }
+            
+            do {
+                let json = try JSON(data: data!)
+                
+                if let imageArray = json["track"]["album"]["image"].array {
+                    let arrayCount = imageArray.count
+                    let lastImage = imageArray[arrayCount - 1]
+                    
+                    if let artURL = lastImage["#text"].string {
+                        // Check for Default Last FM Image
+                        if artURL.range(of: "/noimage/") != nil {
+                            self.artworkImageView.image = UIImage(named: "Album")
+                            print("noimage")
+                        } else {
+                            if artURL == "" {
+                                print("artURL is empty")
+                                self.artworkImageView.image = UIImage(named: "Album")
+                                return
+                            } else {
+                                self.downloadImage(with: URL(string: artURL)!)
+                            }
+                            
+                        }
+                    }
+                }
+            } catch let jsonErr {
+                print(jsonErr)
+            }
+            
+        }.resume()
+    }
+    
+    func downloadImage(with url: URL) {
+        URLSession.shared.dataTask(with: url) { (data, response, error) in
+            if error != nil {
+                print(error!)
+                return
+            }
+            
+            DispatchQueue.main.async {
+                self.artworkImageView.image = UIImage(data: data!)
+            }
+            
+            }.resume()
+    }
+    
 }
 
 // MARK: - Remote Controls / Lock screen

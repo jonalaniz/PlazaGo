@@ -61,7 +61,7 @@ import AVFoundation
         case .urlNotSet: return "URL is not set"
         case .readyToPlay: return "Ready to play"
         case .loading: return "Loading"
-        case .loadingFinished: return "Loading finished"
+        case .loadingFinished: return "Nightwave Plaza"
         case .error: return "Error"
         }
     }
@@ -152,7 +152,7 @@ open class FRadioPlayer: NSObject {
     open var isAutoPlay = true
     
     /// Enable fetching albums artwork from the iTunes API. (default == true)
-    open var enableArtwork = true
+    open var enableArtwork = false
     
     /// Artwork image size. (default == 100 | 100x100)
     open var artworkSize = 100

@@ -14,7 +14,7 @@ struct Track {
     var image: UIImage?
     var artistInfo: String?
     var space = " "
-    var artworkURL = " "
+    var artworkURL: String?
     
     init(artist: String? = nil, name: String? = nil, image: UIImage? = nil) {
         self.name = name
