@@ -24,39 +24,62 @@ class NowPlayingController: UIViewController {
         return imageView
     }()
     
-    let icon: UIImageView = {
-        let imageView = UIImageView(image: UIImage(named: "icon"))
+    let icon: SpringImageView = {
+        let imageView = SpringImageView(image: UIImage(named: "icon"))
         imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.animation = "fadeInLeft"
+        imageView.curve = "easeOut"
+        imageView.velocity = 0.1
+        imageView.force = 0.1
         imageView.contentMode = .scaleAspectFit
         return imageView
     }()
     
-    let nwLabel: UILabel = {
-        let label = UILabel()
+    let nwLabel: SpringLabel = {
+        let label = SpringLabel()
+        label.animation = "fadeInLeft"
+        label.curve = "easeOut"
+        label.velocity = 0.1
+        label.force = 0.1
+        label.delay = 0.1
         label.style()
         label.text = "Nightwave Plaza"
         label.font = UIFont(name: "HelveticaNeue", size: 15)
         return label
     }()
     
-    let artistLabel: UILabel = {
-        let label = UILabel()
+    let artistLabel: SpringLabel = {
+        let label = SpringLabel()
         label.style()
+        label.animation = "fadeInLeft"
+        label.curve = "easeOut"
+        label.velocity = 0.1
+        label.force = 0.1
         label.text = ""
         label.font = UIFont(name: "HelveticaNeue-Bold", size: 28)
         return label
     }()
     
-    let artworkImageView: UIImageView = {
-        let imageView = UIImageView()
+    let artworkImageView: SpringImageView = {
+        let imageView = SpringImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.animation = "fadeInLeft"
+        imageView.curve = "easeOut"
+        imageView.velocity = 0.1
+        imageView.force = 0.1
         imageView.contentMode = .scaleAspectFill
         return imageView
     }()
     
-    let trackLabel: UILabel = {
-        let label = UILabel()
+    let trackLabel: SpringLabel = {
+        let label = SpringLabel()
         label.style()
+        label.isUserInteractionEnabled = true
+        label.animation = "fadeInLeft"
+        label.curve = "easeOut"
+        label.velocity = 0.1
+        label.force = 0.1
+        label.delay = 0.1
         label.text = ""
         label.font = UIFont(name: "HelveticaNeue-Thin", size: 28)
         return label
@@ -95,9 +118,11 @@ class NowPlayingController: UIViewController {
     
     var track: Track? {
         didSet {
+
             artistLabel.text = track?.artist
             trackLabel.text = track?.name
             updateNowPlaying(with: track)
+            
         }
     }
     
@@ -112,9 +137,14 @@ class NowPlayingController: UIViewController {
         setupRemoteTransportControls()
         addSubviews()
         constrainUI()
+        trackLabel.addGestureRecognizer(addGestureRecognizer())
+        
+        icon.animate()
+        nwLabel.animate()
+        artistLabel.animate()
+        trackLabel.animate()
         
         selectStation(quality: station["High"]!)
-        //getArtworkURL(withTrack: "Stronger", withArtist: "Kanye West")
         
     }
     
@@ -148,6 +178,20 @@ class NowPlayingController: UIViewController {
             qualityBtn.addGlow()
             selectStation(quality: station["High"]!)
         }
+    }
+    
+    @objc private func copySongInfo() {
+        UIPasteboard.general.string = track?.getSongInfo()
+        nwLabel.text = "Song Info Copied"
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            self.nwLabel.text = "Nightwave Plaza"
+
+        }
+    }
+    
+    private func addGestureRecognizer() -> UILongPressGestureRecognizer{
+        let holdToSearch = UILongPressGestureRecognizer(target: self, action: #selector(copySongInfo))
+        return holdToSearch
     }
     
     private func selectStation(quality key: URL) {
@@ -237,6 +281,11 @@ extension NowPlayingController: FRadioPlayerDelegate {
     
     func radioPlayer(_ player: FRadioPlayer, metadataDidChange artistName: String?, trackName: String?) {
         track = Track(artist: artistName, name: trackName)
+        artistLabel.animation = "fadeInLeft"
+        artistLabel.animate()
+        trackLabel.animation = "fadeInLeft"
+        trackLabel.delay = 0.1
+        trackLabel.animate()
         getArtworkURL(withTrack: trackName ?? "", withArtist: artistName ?? "")
     }
     
@@ -261,7 +310,7 @@ extension NowPlayingController: FRadioPlayerDelegate {
         let queryItemTrack = URLQueryItem(name: "track", value: track)
         let queryItemFormat = URLQueryItem(name: "format", value: "json")
         components.queryItems = [queryItemType, queryItemKey, queryItemArtist, queryItemTrack,queryItemFormat]
-        print(components.url)
+        //print(components.url)
         return components.url
     }
     
@@ -283,19 +332,41 @@ extension NowPlayingController: FRadioPlayerDelegate {
                     if let artURL = lastImage["#text"].string {
                         // Check for Default Last FM Image
                         if artURL.range(of: "/noimage/") != nil {
-                            self.artworkImageView.image = UIImage(named: "Album")
                             print("noimage")
-                        } else {
-                            if artURL == "" {
-                                print("artURL is empty")
+                            DispatchQueue.main.async {
                                 self.artworkImageView.image = UIImage(named: "Album")
-                                return
-                            } else {
-                                self.downloadImage(with: URL(string: artURL)!)
+                                self.artworkImageView.animation = "fadeInLeft"
+                                self.artworkImageView.animate()
                             }
-                            
+                        } else if artURL == "" {
+                            print("artURL is empty")
+                            DispatchQueue.main.async {
+                                self.artworkImageView.image = UIImage(named: "Album")
+                                self.artworkImageView.animation = "fadeInLeft"
+                                self.artworkImageView.animate()
+                            }
+                        } else {
+                            self.downloadImage(with: URL(string: artURL)!)
                         }
+                        
+                    } else {
+                        print("we in elseworld")
+                        DispatchQueue.main.async {
+                            self.artworkImageView.image = UIImage(named: "Album")
+                            self.artworkImageView.animation = "fadeInLeft"
+                            self.artworkImageView.animate()
+                        }
+            
                     }
+                    
+                } else {
+                    DispatchQueue.main.async {
+                        self.artworkImageView.image = UIImage(named: "Album")
+                        self.artworkImageView.animation = "fadeInLeft"
+                        self.artworkImageView.animate()
+                        print("No Image in JSON")
+                    }
+                
                 }
             } catch let jsonErr {
                 print(jsonErr)
@@ -313,6 +384,8 @@ extension NowPlayingController: FRadioPlayerDelegate {
             
             DispatchQueue.main.async {
                 self.artworkImageView.image = UIImage(data: data!)
+                self.artworkImageView.animation = "fadeInLeft"
+                self.artworkImageView.animate()
             }
             
             }.resume()
