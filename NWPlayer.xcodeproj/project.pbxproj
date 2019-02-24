@@ -44,6 +44,7 @@
 		5607D6D521DA185E00AF5BE7 /* FRadioAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5607D6D421DA185E00AF5BE7 /* FRadioAPI.swift */; };
 		562E243421DC3BA500F2145A /* bg4.gif in Resources */ = {isa = PBXBuildFile; fileRef = 562E243321DC3BA500F2145A /* bg4.gif */; };
 		562E243621DC45FF00F2145A /* PlazaAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 562E243521DC45FF00F2145A /* PlazaAPI.swift */; };
+		56B452C12223629500CF7C11 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 56B452C02223629500CF7C11 /* Assets.xcassets */; };
 		56E712DF21DC22090088E896 /* Station.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56E712DE21DC22090088E896 /* Station.swift */; };
 		56E712E321DC287E0088E896 /* UI Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56E712E221DC287E0088E896 /* UI Extensions.swift */; };
 		56E712E521DC35970088E896 /* Swift+Gif.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56E712E421DC35970088E896 /* Swift+Gif.swift */; };
@@ -90,6 +91,7 @@
 		5607D6D421DA185E00AF5BE7 /* FRadioAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FRadioAPI.swift; sourceTree = "<group>"; };
 		562E243321DC3BA500F2145A /* bg4.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = bg4.gif; sourceTree = "<group>"; };
 		562E243521DC45FF00F2145A /* PlazaAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlazaAPI.swift; sourceTree = "<group>"; };
+		56B452C02223629500CF7C11 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		56E712DE21DC22090088E896 /* Station.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Station.swift; sourceTree = "<group>"; };
 		56E712E221DC287E0088E896 /* UI Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UI Extensions.swift"; sourceTree = "<group>"; };
 		56E712E421DC35970088E896 /* Swift+Gif.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Swift+Gif.swift"; sourceTree = "<group>"; };
@@ -161,6 +163,7 @@
 		5607D6B821D99DD100AF5BE7 /* NWPlayer */ = {
 			isa = PBXGroup;
 			children = (
+				56B452C02223629500CF7C11 /* Assets.xcassets */,
 				5607D6CB21DA089A00AF5BE7 /* Supporting Files */,
 				5607D6B921D99DD100AF5BE7 /* AppDelegate.swift */,
 				5607D6BB21D99DD100AF5BE7 /* NowPlayingController.swift */,
@@ -265,6 +268,7 @@
 				5607D6C421D99DD400AF5BE7 /* LaunchScreen.storyboard in Resources */,
 				5607D6BF21D99DD100AF5BE7 /* Main.storyboard in Resources */,
 				56026A7721EA149800D74309 /* LoadingView.xib in Resources */,
+				56B452C12223629500CF7C11 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
