@@ -38,15 +38,12 @@
 		5607D6BA21D99DD100AF5BE7 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5607D6B921D99DD100AF5BE7 /* AppDelegate.swift */; };
 		5607D6BC21D99DD100AF5BE7 /* NowPlayingController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5607D6BB21D99DD100AF5BE7 /* NowPlayingController.swift */; };
 		5607D6BF21D99DD100AF5BE7 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5607D6BD21D99DD100AF5BE7 /* Main.storyboard */; };
-		5607D6C121D99DD400AF5BE7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5607D6C021D99DD400AF5BE7 /* Assets.xcassets */; };
 		5607D6C421D99DD400AF5BE7 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5607D6C221D99DD400AF5BE7 /* LaunchScreen.storyboard */; };
-		5607D6CF21DA179800AF5BE7 /* Track.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5607D6CE21DA179800AF5BE7 /* Track.swift */; };
 		5607D6D121DA17D400AF5BE7 /* FRadioPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5607D6D021DA17D400AF5BE7 /* FRadioPlayer.swift */; };
 		5607D6D321DA180500AF5BE7 /* Reachability.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5607D6D221DA180500AF5BE7 /* Reachability.swift */; };
 		5607D6D521DA185E00AF5BE7 /* FRadioAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5607D6D421DA185E00AF5BE7 /* FRadioAPI.swift */; };
-		5607D6D721DA28E200AF5BE7 /* SwiftyJSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5607D6D621DA28E200AF5BE7 /* SwiftyJSON.swift */; };
 		562E243421DC3BA500F2145A /* bg4.gif in Resources */ = {isa = PBXBuildFile; fileRef = 562E243321DC3BA500F2145A /* bg4.gif */; };
-		562E243621DC45FF00F2145A /* LastFM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 562E243521DC45FF00F2145A /* LastFM.swift */; };
+		562E243621DC45FF00F2145A /* PlazaAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 562E243521DC45FF00F2145A /* PlazaAPI.swift */; };
 		56E712DF21DC22090088E896 /* Station.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56E712DE21DC22090088E896 /* Station.swift */; };
 		56E712E321DC287E0088E896 /* UI Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56E712E221DC287E0088E896 /* UI Extensions.swift */; };
 		56E712E521DC35970088E896 /* Swift+Gif.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56E712E421DC35970088E896 /* Swift+Gif.swift */; };
@@ -86,16 +83,13 @@
 		5607D6B921D99DD100AF5BE7 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		5607D6BB21D99DD100AF5BE7 /* NowPlayingController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NowPlayingController.swift; sourceTree = "<group>"; };
 		5607D6BE21D99DD100AF5BE7 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
-		5607D6C021D99DD400AF5BE7 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		5607D6C321D99DD400AF5BE7 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		5607D6C521D99DD400AF5BE7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		5607D6CE21DA179800AF5BE7 /* Track.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Track.swift; sourceTree = "<group>"; };
 		5607D6D021DA17D400AF5BE7 /* FRadioPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FRadioPlayer.swift; sourceTree = "<group>"; };
 		5607D6D221DA180500AF5BE7 /* Reachability.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Reachability.swift; sourceTree = "<group>"; };
 		5607D6D421DA185E00AF5BE7 /* FRadioAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FRadioAPI.swift; sourceTree = "<group>"; };
-		5607D6D621DA28E200AF5BE7 /* SwiftyJSON.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftyJSON.swift; sourceTree = "<group>"; };
 		562E243321DC3BA500F2145A /* bg4.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = bg4.gif; sourceTree = "<group>"; };
-		562E243521DC45FF00F2145A /* LastFM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LastFM.swift; sourceTree = "<group>"; };
+		562E243521DC45FF00F2145A /* PlazaAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlazaAPI.swift; sourceTree = "<group>"; };
 		56E712DE21DC22090088E896 /* Station.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Station.swift; sourceTree = "<group>"; };
 		56E712E221DC287E0088E896 /* UI Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UI Extensions.swift"; sourceTree = "<group>"; };
 		56E712E421DC35970088E896 /* Swift+Gif.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Swift+Gif.swift"; sourceTree = "<group>"; };
@@ -171,7 +165,6 @@
 				5607D6B921D99DD100AF5BE7 /* AppDelegate.swift */,
 				5607D6BB21D99DD100AF5BE7 /* NowPlayingController.swift */,
 				5607D6BD21D99DD100AF5BE7 /* Main.storyboard */,
-				5607D6C021D99DD400AF5BE7 /* Assets.xcassets */,
 				5607D6C221D99DD400AF5BE7 /* LaunchScreen.storyboard */,
 				5607D6C521D99DD400AF5BE7 /* Info.plist */,
 			);
@@ -183,9 +176,7 @@
 			children = (
 				56E712E621DC35AE0088E896 /* GIFs */,
 				56E712E021DC285C0088E896 /* UI */,
-				5607D6D621DA28E200AF5BE7 /* SwiftyJSON.swift */,
-				5607D6CE21DA179800AF5BE7 /* Track.swift */,
-				562E243521DC45FF00F2145A /* LastFM.swift */,
+				562E243521DC45FF00F2145A /* PlazaAPI.swift */,
 				5607D6D021DA17D400AF5BE7 /* FRadioPlayer.swift */,
 				5607D6D421DA185E00AF5BE7 /* FRadioAPI.swift */,
 				5607D6D221DA180500AF5BE7 /* Reachability.swift */,
@@ -272,7 +263,6 @@
 			files = (
 				562E243421DC3BA500F2145A /* bg4.gif in Resources */,
 				5607D6C421D99DD400AF5BE7 /* LaunchScreen.storyboard in Resources */,
-				5607D6C121D99DD400AF5BE7 /* Assets.xcassets in Resources */,
 				5607D6BF21D99DD100AF5BE7 /* Main.storyboard in Resources */,
 				56026A7721EA149800D74309 /* LoadingView.xib in Resources */,
 			);
@@ -291,7 +281,7 @@
 				5607D6D521DA185E00AF5BE7 /* FRadioAPI.swift in Sources */,
 				56026A7421EA149800D74309 /* DesignableView.swift in Sources */,
 				56026A7D21EA149800D74309 /* LoadingView.swift in Sources */,
-				562E243621DC45FF00F2145A /* LastFM.swift in Sources */,
+				562E243621DC45FF00F2145A /* PlazaAPI.swift in Sources */,
 				56026A6921EA149800D74309 /* SpringImageView.swift in Sources */,
 				5607D6BC21D99DD100AF5BE7 /* NowPlayingController.swift in Sources */,
 				56026A7A21EA149800D74309 /* AutoTextView.swift in Sources */,
@@ -311,7 +301,6 @@
 				56E712E521DC35970088E896 /* Swift+Gif.swift in Sources */,
 				56026A6D21EA149800D74309 /* DesignableTextField.swift in Sources */,
 				56026A7621EA149800D74309 /* AsyncButton.swift in Sources */,
-				5607D6D721DA28E200AF5BE7 /* SwiftyJSON.swift in Sources */,
 				56026A6E21EA149800D74309 /* SpringButton.swift in Sources */,
 				56026A7321EA149800D74309 /* SpringTextField.swift in Sources */,
 				56026A6F21EA149800D74309 /* SpringTextView.swift in Sources */,
@@ -319,7 +308,6 @@
 				5607D6D321DA180500AF5BE7 /* Reachability.swift in Sources */,
 				5607D6D121DA17D400AF5BE7 /* FRadioPlayer.swift in Sources */,
 				5607D6BA21D99DD100AF5BE7 /* AppDelegate.swift in Sources */,
-				5607D6CF21DA179800AF5BE7 /* Track.swift in Sources */,
 				56026A7B21EA149800D74309 /* SpringAnimation.swift in Sources */,
 				56026A7121EA149800D74309 /* SpringView.swift in Sources */,
 				56026A7821EA149800D74309 /* SpringLabel.swift in Sources */,

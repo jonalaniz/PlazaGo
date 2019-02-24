@@ -27,8 +27,9 @@ extension UIButton {
     func addGlow() {
         let layer = self.layer
         layer.shadowColor = UIColor.white.cgColor
-        layer.shadowOpacity = 70
-        layer.shadowRadius = 10
+        layer.shadowOpacity = 1
+        layer.shadowRadius = 5
+        layer.shadowOffset = CGSize(width: 0, height: 0)
     }
     
     func removeGlow() {

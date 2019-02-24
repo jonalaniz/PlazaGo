@@ -20,7 +20,7 @@ class NowPlayingController: UIViewController {
         imageView.loadGif(name: "bg4")
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.contentMode = .scaleAspectFill
-        imageView.layer.opacity = 0.4
+        imageView.layer.opacity = 0.5
         return imageView
     }()
     
@@ -60,6 +60,18 @@ class NowPlayingController: UIViewController {
         return label
     }()
     
+    let albumLabel: SpringLabel = {
+        let label = SpringLabel()
+        label.style()
+        label.animation = "fadeInLeft"
+        label.curve = "easeOut"
+        label.velocity = 0.1
+        label.force = 0.1
+        label.text = ""
+        label.font = UIFont(name: "HelveticaNeue-Thin", size: 26)
+        return label
+    }()
+    
     let artworkImageView: SpringImageView = {
         let imageView = SpringImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
@@ -95,7 +107,7 @@ class NowPlayingController: UIViewController {
     
     let qualityBtn: UIButton = {
         let button = UIButton()
-        button.setTitle("high", for: .normal)
+        button.setTitle("HQ", for: .normal)
         button.style()
         button.addGlow()
         button.addTarget(self, action: #selector(changeQuality), for: .touchUpInside)
@@ -108,23 +120,20 @@ class NowPlayingController: UIViewController {
     
     let player: FRadioPlayer = FRadioPlayer.shared
     
-    let apiKey = LastFMAPI().apiKey
+    var station = Station().stations
     
-    let station = Station().stations
+    var stream = Stream() {
+        didSet {
+            artistLabel.text = stream.playback?.artist?.uppercased()
+            trackLabel.text = stream.playback?.title
+            albumLabel.text = stream.playback?.album?.uppercased()
+            updateNowPlaying(with: stream)
+        }
+    }
     
     let deviceHeight = UIScreen.main.bounds.height
     
     var isHQ = true
-    
-    var track: Track? {
-        didSet {
-
-            artistLabel.text = track?.artist
-            trackLabel.text = track?.name
-            updateNowPlaying(with: track)
-            
-        }
-    }
     
     //********************************************************************
     //  MARK: - Overrides
@@ -158,7 +167,7 @@ class NowPlayingController: UIViewController {
     
     @objc private func playBtnPressed() {
         if player.isPlaying {
-            player.pause()
+            player.stop()
             playBtn.setImage(UIImage(named: "playBtn"), for: .normal)
         } else {
             player.play()
@@ -169,19 +178,19 @@ class NowPlayingController: UIViewController {
     @objc private func changeQuality() {
         if isHQ {
             isHQ = false
-            qualityBtn.setTitle("low", for: .normal)
+            qualityBtn.setTitle("LQ", for: .normal)
             qualityBtn.removeGlow()
             selectStation(quality: station["Low"]!)
         } else {
             isHQ = true
-            qualityBtn.setTitle("high", for: .normal)
+            qualityBtn.setTitle("HQ", for: .normal)
             qualityBtn.addGlow()
             selectStation(quality: station["High"]!)
         }
     }
     
     @objc private func copySongInfo() {
-        UIPasteboard.general.string = track?.getSongInfo()
+        //UIPasteboard.general.string = track?.getSongInfo()
         nwLabel.text = "Song Info Copied"
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             self.nwLabel.text = "Nightwave Plaza"
@@ -196,7 +205,23 @@ class NowPlayingController: UIViewController {
     
     private func selectStation(quality key: URL) {
         player.radioURL = key
-        updateNowPlaying(with: track)
+        updateNowPlaying(with: stream)
+    }
+    
+    func addParallaxToView(vw: UIView, amount: Int) {
+        let amount = amount
+        
+        let horizontal = UIInterpolatingMotionEffect(keyPath: "center.x", type: .tiltAlongHorizontalAxis)
+        horizontal.minimumRelativeValue = -amount
+        horizontal.maximumRelativeValue = amount
+        
+        let vertical = UIInterpolatingMotionEffect(keyPath: "center.y", type: .tiltAlongVerticalAxis)
+        vertical.minimumRelativeValue = -amount
+        vertical.maximumRelativeValue = amount
+        
+        let group = UIMotionEffectGroup()
+        group.motionEffects = [horizontal, vertical]
+        vw.addMotionEffect(group)
     }
     
     private func addSubviews() {
@@ -205,10 +230,19 @@ class NowPlayingController: UIViewController {
         view.addSubview(icon)
         view.addSubview(nwLabel)
         view.addSubview(artistLabel)
+        view.addSubview(albumLabel)
         view.addSubview(artworkImageView)
         view.addSubview(trackLabel)
         view.addSubview(playBtn)
         view.addSubview(qualityBtn)
+        
+        addParallaxToView(vw: icon, amount: 10)
+        addParallaxToView(vw: nwLabel, amount: 10)
+        addParallaxToView(vw: artistLabel, amount: 20)
+        addParallaxToView(vw: albumLabel, amount: 20)
+        addParallaxToView(vw: artworkImageView, amount: 20)
+        addParallaxToView(vw: trackLabel, amount: 20)
+        addParallaxToView(vw: playBtn, amount: 20)
     }
     
     private func constrainUI() {
@@ -216,11 +250,11 @@ class NowPlayingController: UIViewController {
         let topSpace: CGFloat = {
             var space = CGFloat()
             if deviceHeight == 568 {
-                space = 50
+                space = 40
             } else if deviceHeight == 667 {
                 space = 70
             } else {
-                space = 90
+                space = 80
             }
             return space
         }()
@@ -229,7 +263,7 @@ class NowPlayingController: UIViewController {
         background.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
         background.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
         background.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
-        background.layer.opacity = 0.5
+        background.layer.opacity = 0.4
         
         icon.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 25).isActive = true
         icon.topAnchor.constraint(equalTo: view.topAnchor, constant: topSpace).isActive = true
@@ -243,23 +277,28 @@ class NowPlayingController: UIViewController {
         
         artistLabel.heightAnchor.constraint(equalToConstant: 32).isActive = true
         artistLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
-        artistLabel.topAnchor.constraint(equalTo: icon.bottomAnchor, constant: 8).isActive = true
+        artistLabel.topAnchor.constraint(equalTo: icon.bottomAnchor, constant: topSpace / 2).isActive = true
         artistLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 25).isActive = true
         
+        albumLabel.heightAnchor.constraint(equalToConstant: 30).isActive = true
+        albumLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
+        albumLabel.topAnchor.constraint(equalTo: artistLabel.bottomAnchor, constant: 2).isActive = true
+        albumLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 25).isActive = true
+        
         artworkImageView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 25).isActive = true
-        artworkImageView.topAnchor.constraint(equalTo: artistLabel.bottomAnchor, constant: 10).isActive = true
-        artworkImageView.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.4).isActive = true
-        artworkImageView.widthAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.4).isActive = true
+        artworkImageView.topAnchor.constraint(equalTo: albumLabel.bottomAnchor, constant: 5).isActive = true
+        artworkImageView.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.38).isActive = true
+        artworkImageView.widthAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.38).isActive = true
         
         trackLabel.heightAnchor.constraint(equalToConstant: 32).isActive = true
         trackLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
         trackLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 25).isActive = true
-        trackLabel.topAnchor.constraint(equalTo: artworkImageView.bottomAnchor, constant: 10).isActive = true
+        trackLabel.topAnchor.constraint(equalTo: artworkImageView.bottomAnchor, constant: 5).isActive = true
         
-        playBtn.topAnchor.constraint(equalTo: trackLabel.bottomAnchor, constant: 20).isActive = true
+        playBtn.topAnchor.constraint(equalTo: trackLabel.bottomAnchor, constant: topSpace / 3).isActive = true
         playBtn.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 25).isActive = true
-        playBtn.heightAnchor.constraint(equalToConstant: 70).isActive = true
-        playBtn.widthAnchor.constraint(equalToConstant: 70).isActive = true
+        playBtn.heightAnchor.constraint(equalToConstant: 60).isActive = true
+        playBtn.widthAnchor.constraint(equalToConstant: 60).isActive = true
         
         qualityBtn.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 25).isActive = true
         qualityBtn.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -25).isActive = true
@@ -273,104 +312,68 @@ extension NowPlayingController: FRadioPlayerDelegate {
     
     func radioPlayer(_ player: FRadioPlayer, playerStateDidChange state: FRadioPlayerState) {
         nwLabel.text = state.description
-        print(state.description)
+        //print(state.description)
     }
     
     func radioPlayer(_ player: FRadioPlayer, playbackStateDidChange state: FRadioPlaybackState) {
     }
     
     func radioPlayer(_ player: FRadioPlayer, metadataDidChange artistName: String?, trackName: String?) {
-        track = Track(artist: artistName, name: trackName)
+        getSongInfo()
         artistLabel.animation = "fadeInLeft"
         artistLabel.animate()
         trackLabel.animation = "fadeInLeft"
         trackLabel.delay = 0.1
         trackLabel.animate()
-        getArtworkURL(withTrack: trackName ?? "", withArtist: artistName ?? "")
     }
     
     func radioPlayer(_ player: FRadioPlayer, itemDidChange url: URL?) {
-        track = nil
+        //track = nil
     }
     
     func radioPlayer(_ player: FRadioPlayer, artworkDidChange artworkURL: URL?) {
-        
-        updateNowPlaying(with: track)
+        updateNowPlaying(with: stream)
     }
     
-    func getURL(withTrack track: String, withArtist artist: String) -> URL? {
+    func getSongInfo() {
+        let url = URL(string: "https://api.plaza.one/status")!
+        URLSession.shared.dataTask(with: url) { (data, response, error) in
+            if error != nil {
+                print(error)
+                return
+            }
+            
+            guard let data = data else {return}
+            
+            do {
+                let jsonData = try JSONDecoder().decode(Stream.self, from: data)
+                DispatchQueue.main.async {
+                    self.stream = jsonData
+                }
+                
+            } catch let jsonError {
+                print("Error serializing json:", jsonError)
+            }
+            self.getArtworkURL()
+            
+            }.resume()
+    }
+    
+    func getArtworkURL() {
         var components = URLComponents()
-        
+        let artworkURL = stream.playback?.artwork
         components.scheme = "https"
-        components.host = "ws.audioscrobbler.com"
-        components.path = "/2.0/"
-        let queryItemType = URLQueryItem(name: "method", value: "track.getInfo")
-        let queryItemKey = URLQueryItem(name: "api_key", value: apiKey)
-        let queryItemArtist = URLQueryItem(name: "artist", value: artist)
-        let queryItemTrack = URLQueryItem(name: "track", value: track)
-        let queryItemFormat = URLQueryItem(name: "format", value: "json")
-        components.queryItems = [queryItemType, queryItemKey, queryItemArtist, queryItemTrack,queryItemFormat]
-        //print(components.url)
-        return components.url
-    }
-    
-    func getArtworkURL(withTrack track: String, withArtist artist: String) {
-        guard let url = getURL(withTrack: track, withArtist: artist) else { return }
+        components.host = "api.plaza.one"
+        components.path = "/\(artworkURL ?? "/ass")"
+        
+        guard let url = components.url else { return }
         URLSession.shared.dataTask(with: url) { (data, response, error) in
             if error != nil {
                 print(error!)
                 return
             }
             
-            do {
-                let json = try JSON(data: data!)
-                
-                if let imageArray = json["track"]["album"]["image"].array {
-                    let arrayCount = imageArray.count
-                    let lastImage = imageArray[arrayCount - 1]
-                    
-                    if let artURL = lastImage["#text"].string {
-                        // Check for Default Last FM Image
-                        if artURL.range(of: "/noimage/") != nil {
-                            print("noimage")
-                            DispatchQueue.main.async {
-                                self.artworkImageView.image = UIImage(named: "Album")
-                                self.artworkImageView.animation = "fadeInLeft"
-                                self.artworkImageView.animate()
-                            }
-                        } else if artURL == "" {
-                            print("artURL is empty")
-                            DispatchQueue.main.async {
-                                self.artworkImageView.image = UIImage(named: "Album")
-                                self.artworkImageView.animation = "fadeInLeft"
-                                self.artworkImageView.animate()
-                            }
-                        } else {
-                            self.downloadImage(with: URL(string: artURL)!)
-                        }
-                        
-                    } else {
-                        print("we in elseworld")
-                        DispatchQueue.main.async {
-                            self.artworkImageView.image = UIImage(named: "Album")
-                            self.artworkImageView.animation = "fadeInLeft"
-                            self.artworkImageView.animate()
-                        }
-            
-                    }
-                    
-                } else {
-                    DispatchQueue.main.async {
-                        self.artworkImageView.image = UIImage(named: "Album")
-                        self.artworkImageView.animation = "fadeInLeft"
-                        self.artworkImageView.animate()
-                        print("No Image in JSON")
-                    }
-                
-                }
-            } catch let jsonErr {
-                print(jsonErr)
-            }
+            self.downloadImage(with: url)
             
         }.resume()
     }
@@ -379,6 +382,11 @@ extension NowPlayingController: FRadioPlayerDelegate {
         URLSession.shared.dataTask(with: url) { (data, response, error) in
             if error != nil {
                 print(error!)
+                DispatchQueue.main.async {
+                    self.artworkImageView.image = UIImage(named: "Album")
+                    self.artworkImageView.animation = "fadeInLeft"
+                    self.artworkImageView.animate()
+                }
                 return
             }
             
@@ -421,23 +429,23 @@ extension NowPlayingController {
         
     }
     
-    func updateNowPlaying(with track: Track?) {
+    func updateNowPlaying(with stream: Stream?) {
         
         // Define Now Playing Info
         var nowPlayingInfo = [String : Any]()
         
-        if let artist = track?.artist {
+        if let artist = stream?.playback?.artist {
             nowPlayingInfo[MPMediaItemPropertyArtist] = artist
         }
         
-        nowPlayingInfo[MPMediaItemPropertyTitle] = track?.name ?? "Nothing Playing"
+        nowPlayingInfo[MPMediaItemPropertyTitle] = stream?.playback?.title ?? "Nothing Playing"
         
-        if let image = track?.image ?? UIImage(named: "albumArt") {
-            nowPlayingInfo[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(boundsSize: image.size, requestHandler: { _ -> UIImage in
-                return image
-            })
-        }
-        
+//        if let image = stream?.playback?.image ?? UIImage(named: "albumArt") {
+//            nowPlayingInfo[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(boundsSize: image.size, requestHandler: { _ -> UIImage in
+//                return image
+//            })
+//        }
+//        
         // Set the metadata
         MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
     }
