@@ -27,20 +27,14 @@ class NowPlayingController: UIViewController {
     let icon: SpringImageView = {
         let imageView = SpringImageView(image: UIImage(named: "icon"))
         imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.animation = "fadeInLeft"
-        imageView.curve = "easeOut"
-        imageView.velocity = 0.1
-        imageView.force = 0.1
+        imageView.setupAnimation()
         imageView.contentMode = .scaleAspectFit
         return imageView
     }()
     
     let nwLabel: SpringLabel = {
         let label = SpringLabel()
-        label.animation = "fadeInLeft"
-        label.curve = "easeOut"
-        label.velocity = 0.1
-        label.force = 0.1
+        label.setupAnimation()
         label.delay = 0.1
         label.style()
         label.text = "Nightwave Plaza"
@@ -51,10 +45,7 @@ class NowPlayingController: UIViewController {
     let artistLabel: SpringLabel = {
         let label = SpringLabel()
         label.style()
-        label.animation = "fadeInLeft"
-        label.curve = "easeOut"
-        label.velocity = 0.1
-        label.force = 0.1
+        label.setupAnimation()
         label.text = ""
         label.font = UIFont(name: "HelveticaNeue-Bold", size: 28)
         return label
@@ -63,10 +54,7 @@ class NowPlayingController: UIViewController {
     let albumLabel: SpringLabel = {
         let label = SpringLabel()
         label.style()
-        label.animation = "fadeInLeft"
-        label.curve = "easeOut"
-        label.velocity = 0.1
-        label.force = 0.1
+        label.setupAnimation()
         label.text = ""
         label.font = UIFont(name: "HelveticaNeue-Thin", size: 26)
         return label
@@ -75,10 +63,7 @@ class NowPlayingController: UIViewController {
     let artworkImageView: SpringImageView = {
         let imageView = SpringImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.animation = "fadeInLeft"
-        imageView.curve = "easeOut"
-        imageView.velocity = 0.1
-        imageView.force = 0.1
+        imageView.setupAnimation()
         imageView.contentMode = .scaleAspectFill
         return imageView
     }()
@@ -87,11 +72,7 @@ class NowPlayingController: UIViewController {
         let label = SpringLabel()
         label.style()
         label.isUserInteractionEnabled = true
-        label.animation = "fadeInLeft"
-        label.curve = "easeOut"
-        label.velocity = 0.1
-        label.force = 0.1
-        label.delay = 0.1
+        label.setupAnimation()
         label.text = ""
         label.font = UIFont(name: "HelveticaNeue-Thin", size: 28)
         return label
@@ -100,7 +81,7 @@ class NowPlayingController: UIViewController {
     let playBtn: UIButton = {
         let button = UIButton()
         button.setImage(UIImage(named: "pauseBtn"), for: .normal)
-        button.translatesAutoresizingMaskIntoConstraints = false
+        button.style()
         button.addTarget(self, action: #selector(playBtnPressed), for: .touchUpInside)
         return button
     }()
@@ -108,10 +89,29 @@ class NowPlayingController: UIViewController {
     let qualityBtn: UIButton = {
         let button = UIButton()
         button.setTitle("HQ", for: .normal)
+        button.titleLabel?.font =  UIFont(name: "HelveticaNeue-Bold", size: 16)
         button.style()
         button.addGlow()
         button.addTarget(self, action: #selector(changeQuality), for: .touchUpInside)
         return button
+    }()
+    
+    let aboutBtn: UIButton = {
+        let button = UIButton()
+        button.setImage(UIImage(named: "about"), for: .normal)
+        button.style()
+        button.addTarget(self, action: #selector(changeQuality), for: .touchUpInside)
+        return button
+    }()
+    
+    let progressView: UIProgressView = {
+        let progressView = UIProgressView()
+        progressView.progressTintColor = .white
+        progressView.progressViewStyle = .bar
+        progressView.progress = 0.5
+        
+        progressView.translatesAutoresizingMaskIntoConstraints = false
+        return progressView
     }()
     
     //********************************************************************
@@ -128,6 +128,13 @@ class NowPlayingController: UIViewController {
             trackLabel.text = stream.playback?.title
             albumLabel.text = stream.playback?.album?.uppercased()
             updateNowPlaying(with: stream)
+            self.artistLabel.animation = "fadeInLeft"
+            self.artistLabel.animate()
+            self.albumLabel.animation = "fadeInLeft"
+            self.albumLabel.animate()
+            self.trackLabel.animation = "fadeInLeft"
+            self.trackLabel.delay = 0.1
+            self.trackLabel.animate()
         }
     }
     
@@ -142,6 +149,8 @@ class NowPlayingController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+       // NotificationCenter.default.addObserver(self, selector:#selector(NowPlayingController.getSongInfo), name: UIApplication.didBecomeActiveNotification, object: nil)
+        
         player.delegate = self
         setupRemoteTransportControls()
         addSubviews()
@@ -150,8 +159,6 @@ class NowPlayingController: UIViewController {
         
         icon.animate()
         nwLabel.animate()
-        artistLabel.animate()
-        trackLabel.animate()
         
         selectStation(quality: station["High"]!)
         
@@ -190,7 +197,8 @@ class NowPlayingController: UIViewController {
     }
     
     @objc private func copySongInfo() {
-        //UIPasteboard.general.string = track?.getSongInfo()
+        let info = "\(stream.playback?.artist!) \(stream.playback?.title!)"
+        UIPasteboard.general.string = info
         nwLabel.text = "Song Info Copied"
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             self.nwLabel.text = "Nightwave Plaza"
@@ -232,29 +240,45 @@ class NowPlayingController: UIViewController {
         view.addSubview(artistLabel)
         view.addSubview(albumLabel)
         view.addSubview(artworkImageView)
+        view.addSubview(progressView)
         view.addSubview(trackLabel)
         view.addSubview(playBtn)
         view.addSubview(qualityBtn)
+        view.addSubview(aboutBtn)
         
         addParallaxToView(vw: icon, amount: 10)
         addParallaxToView(vw: nwLabel, amount: 10)
         addParallaxToView(vw: artistLabel, amount: 20)
         addParallaxToView(vw: albumLabel, amount: 20)
         addParallaxToView(vw: artworkImageView, amount: 20)
+        addParallaxToView(vw: progressView, amount: 20)
         addParallaxToView(vw: trackLabel, amount: 20)
-        addParallaxToView(vw: playBtn, amount: 20)
+        addParallaxToView(vw: playBtn, amount: 10)
+        addParallaxToView(vw: qualityBtn, amount: 10)
+        addParallaxToView(vw: aboutBtn, amount: 10)
     }
     
     private func constrainUI() {
         
         let topSpace: CGFloat = {
             var space = CGFloat()
-            if deviceHeight == 568 {
-                space = 40
-            } else if deviceHeight == 667 {
-                space = 70
+            space = (deviceHeight / 5) / 2
+//            if deviceHeight == 568 {
+//                space = 35
+//            } else if deviceHeight == 667 {
+//                space = 50
+//            } else {
+//                space = 60
+//            }
+            return space
+        }()
+        
+        let bottomSpace: CGFloat = {
+            var space = CGFloat()
+            if deviceHeight > 736 {
+                space = -50
             } else {
-                space = 80
+                space = -25
             }
             return space
         }()
@@ -277,7 +301,7 @@ class NowPlayingController: UIViewController {
         
         artistLabel.heightAnchor.constraint(equalToConstant: 32).isActive = true
         artistLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
-        artistLabel.topAnchor.constraint(equalTo: icon.bottomAnchor, constant: topSpace / 2).isActive = true
+        artistLabel.topAnchor.constraint(equalTo: icon.bottomAnchor, constant: 15).isActive = true
         artistLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 25).isActive = true
         
         albumLabel.heightAnchor.constraint(equalToConstant: 30).isActive = true
@@ -286,24 +310,35 @@ class NowPlayingController: UIViewController {
         albumLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 25).isActive = true
         
         artworkImageView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 25).isActive = true
-        artworkImageView.topAnchor.constraint(equalTo: albumLabel.bottomAnchor, constant: 5).isActive = true
+        artworkImageView.topAnchor.constraint(equalTo: albumLabel.bottomAnchor, constant: 8).isActive = true
         artworkImageView.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.38).isActive = true
         artworkImageView.widthAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.38).isActive = true
+        
+        progressView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 25).isActive = true
+        progressView.topAnchor.constraint(equalTo: artworkImageView.bottomAnchor, constant: 2).isActive = true
+        progressView.heightAnchor.constraint(equalToConstant: 2).isActive = true
+        progressView.widthAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.38).isActive = true
         
         trackLabel.heightAnchor.constraint(equalToConstant: 32).isActive = true
         trackLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
         trackLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 25).isActive = true
-        trackLabel.topAnchor.constraint(equalTo: artworkImageView.bottomAnchor, constant: 5).isActive = true
+        trackLabel.topAnchor.constraint(equalTo: artworkImageView.bottomAnchor, constant: 8).isActive = true
         
-        playBtn.topAnchor.constraint(equalTo: trackLabel.bottomAnchor, constant: topSpace / 3).isActive = true
-        playBtn.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 25).isActive = true
-        playBtn.heightAnchor.constraint(equalToConstant: 60).isActive = true
-        playBtn.widthAnchor.constraint(equalToConstant: 60).isActive = true
+        playBtn.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: bottomSpace).isActive = true
+        playBtn.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        playBtn.heightAnchor.constraint(equalToConstant: 40).isActive = true
+        playBtn.widthAnchor.constraint(equalToConstant: 40).isActive = true
         
         qualityBtn.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 25).isActive = true
-        qualityBtn.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -25).isActive = true
-        qualityBtn.heightAnchor.constraint(equalToConstant: 35).isActive = true
-        qualityBtn.widthAnchor.constraint(equalToConstant: 60).isActive = true
+        qualityBtn.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: bottomSpace).isActive = true
+        qualityBtn.heightAnchor.constraint(equalToConstant: 40).isActive = true
+        qualityBtn.widthAnchor.constraint(equalToConstant: 40).isActive = true
+        
+        aboutBtn.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -25).isActive = true
+        aboutBtn.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: bottomSpace).isActive = true
+        aboutBtn.heightAnchor.constraint(equalToConstant: 40).isActive = true
+        aboutBtn.widthAnchor.constraint(equalToConstant: 40).isActive = true
+        
     }
 
 }
@@ -312,19 +347,18 @@ extension NowPlayingController: FRadioPlayerDelegate {
     
     func radioPlayer(_ player: FRadioPlayer, playerStateDidChange state: FRadioPlayerState) {
         nwLabel.text = state.description
-        //print(state.description)
     }
     
     func radioPlayer(_ player: FRadioPlayer, playbackStateDidChange state: FRadioPlaybackState) {
     }
     
     func radioPlayer(_ player: FRadioPlayer, metadataDidChange artistName: String?, trackName: String?) {
-        getSongInfo()
-        artistLabel.animation = "fadeInLeft"
-        artistLabel.animate()
-        trackLabel.animation = "fadeInLeft"
-        trackLabel.delay = 0.1
-        trackLabel.animate()
+        
+        // give the server some time to catch up with the stream
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: {
+            self.getSongInfo()
+            })
+        
     }
     
     func radioPlayer(_ player: FRadioPlayer, itemDidChange url: URL?) {
@@ -335,7 +369,7 @@ extension NowPlayingController: FRadioPlayerDelegate {
         updateNowPlaying(with: stream)
     }
     
-    func getSongInfo() {
+    @objc func getSongInfo() {
         let url = URL(string: "https://api.plaza.one/status")!
         URLSession.shared.dataTask(with: url) { (data, response, error) in
             if error != nil {
@@ -349,12 +383,12 @@ extension NowPlayingController: FRadioPlayerDelegate {
                 let jsonData = try JSONDecoder().decode(Stream.self, from: data)
                 DispatchQueue.main.async {
                     self.stream = jsonData
+                    self.getArtworkURL()
                 }
                 
             } catch let jsonError {
                 print("Error serializing json:", jsonError)
             }
-            self.getArtworkURL()
             
             }.resume()
     }
@@ -396,7 +430,7 @@ extension NowPlayingController: FRadioPlayerDelegate {
                 self.artworkImageView.animate()
             }
             
-            }.resume()
+        }.resume()
     }
     
 }
@@ -440,12 +474,12 @@ extension NowPlayingController {
         
         nowPlayingInfo[MPMediaItemPropertyTitle] = stream?.playback?.title ?? "Nothing Playing"
         
-//        if let image = stream?.playback?.image ?? UIImage(named: "albumArt") {
-//            nowPlayingInfo[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(boundsSize: image.size, requestHandler: { _ -> UIImage in
-//                return image
-//            })
-//        }
-//        
+        if let image = artworkImageView.image {
+            nowPlayingInfo[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(boundsSize: image.size, requestHandler: { _ -> UIImage in
+                    return image
+                })
+        }
+        
         // Set the metadata
         MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
     }

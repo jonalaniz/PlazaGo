@@ -31,7 +31,6 @@ struct Stream: Codable {
         let artwork_s: String?
         let likes: Int?
         let hates: Int?
-        //let image: UIImage?
         
         init(artist: String? = nil, title: String? = nil, album: String? = nil, length: Int? = nil, position: Int? = nil, updated: Int? = nil, artwork: String? = nil, artwork_s: String? = nil, likes: Int? = nil, hates: Int? = nil) {
             self.artist = artist
@@ -44,7 +43,6 @@ struct Stream: Codable {
             self.artwork_s = artwork_s
             self.likes = likes
             self.hates = hates
-            //self.image = image
         }
     }
 }

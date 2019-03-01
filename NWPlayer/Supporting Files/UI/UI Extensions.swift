@@ -8,6 +8,25 @@
 
 import UIKit
 
+extension SpringLabel {
+    func setupAnimation() {
+        self.animation = "fadeInLeft"
+        self.curve = "easeOut"
+        self.velocity = 0.1
+        self.force = 0.1
+        
+    }
+}
+
+extension SpringImageView {
+    func setupAnimation() {
+        self.animation = "fadeInLeft"
+        self.curve = "easeOut"
+        self.velocity = 0.1
+        self.force = 0.1
+    }
+}
+
 extension UILabel {
     func style() {
         self.translatesAutoresizingMaskIntoConstraints = false
@@ -18,7 +37,7 @@ extension UILabel {
 extension UIButton {
     func style() {
         let layer = self.layer
-        layer.cornerRadius = 5
+        layer.cornerRadius = 20
         layer.borderWidth = 2
         layer.borderColor = UIColor.white.cgColor
         self.translatesAutoresizingMaskIntoConstraints = false
