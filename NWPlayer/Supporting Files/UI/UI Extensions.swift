@@ -34,6 +34,15 @@ extension UILabel {
     }
 }
 
+extension SpringButton {
+    func setupAnimation() {
+        self.animation = "fadeInUp"
+        self.curve = "easeOut"
+        self.velocity = 0.1
+        self.force = 0.1
+    }
+}
+
 extension UIButton {
     func style() {
         let layer = self.layer
