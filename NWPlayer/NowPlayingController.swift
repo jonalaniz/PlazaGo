@@ -17,7 +17,7 @@ class NowPlayingController: UIViewController {
     
     let background: UIImageView = {
         let imageView = UIImageView()
-        imageView.loadGif(name: "bg")
+        imageView.loadGif(name: "1")
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.contentMode = .scaleAspectFill
         imageView.layer.opacity = 0.5
@@ -29,6 +29,7 @@ class NowPlayingController: UIViewController {
         imageView.layer.compositingFilter = "overlayBlendMode"
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.contentMode = .scaleToFill
+        imageView.isUserInteractionEnabled = true
         return imageView
     }()
     
@@ -74,6 +75,7 @@ class NowPlayingController: UIViewController {
         imageView.setupAnimation()
         imageView.isUserInteractionEnabled = true
         imageView.contentMode = .scaleAspectFill
+        imageView.clipsToBounds = true
         return imageView
     }()
     
@@ -99,7 +101,7 @@ class NowPlayingController: UIViewController {
     let qualityBtn: SpringButton = {
         let button = SpringButton()
         button.setTitle("HQ", for: .normal)
-        button.titleLabel?.font =  UIFont(name: "HelveticaNeue-Bold", size: 16)
+        button.titleLabel?.font =  UIFont.systemFont(ofSize: 16, weight: UIFont.Weight.bold)
         button.style()
         button.addGlow()
         button.setupAnimation()
@@ -124,7 +126,7 @@ class NowPlayingController: UIViewController {
         button.style()
         button.setupAnimation()
         button.delay = 0.4
-        //button.addTarget(self, action: #selector(segueToAboutScreen), for: .touchUpInside)
+        button.addTarget(self, action: #selector(segueToAboutScreen), for: .touchUpInside)
         return button
     }()
     
@@ -154,7 +156,7 @@ class NowPlayingController: UIViewController {
     
     let gradients = ["gradient", "gradient1", "gradient3", "gradient4"]
     
-    let backgrounds = ["bg", "bg1", "bg2", "bg3", "bg4"]
+    var backgrounds: [String] = []
     
     var backgroundSelection = 0
     
@@ -177,16 +179,27 @@ class NowPlayingController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        var i = 1
+        while i <= 20 {
+            backgrounds.append("\(i)")
+            i += 1
+        }
+        
         player.delegate = self
         setupRemoteTransportControls()
+
         addSubviews()
         constrainUI()
         trackLabel.addGestureRecognizer(addGestureRecognizer())
         artworkImageView.addGestureRecognizer(addWallpaperChanger())
+        gradient.addGestureRecognizer(addGradientChanger())
         initialAnimation()
         rotate()
         
         selectStation(quality: station["High"]!)
+        //background.isHidden = true
+        //gradient.isHidden = true
+        //view.transform = CGAffineTransform(scaleX: -1, y: -1)
     }
     
     open override var preferredStatusBarStyle: UIStatusBarStyle {
@@ -250,23 +263,16 @@ class NowPlayingController: UIViewController {
     
     @objc private func segueToAboutScreen() {
         let page = AboutViewController()
-        present(page, animated: true, completion: { self.hideInterface() })
-    }
-    
-    
-    
-    private func hideInterface() {
-        // this is where we animate the interface away in preperation for the about screen
-    }
-    
-    private func showInterface() {
-        // this is where we animate the interface back in after about screen is dismissed
+        page.modalPresentationStyle = .overCurrentContext
+        page.modalTransitionStyle = .crossDissolve
+        present(page, animated: true, completion: nil)
     }
     
     private func rotate() {
+        // uses Core Animation to spin the gradient in the background
         let rotation: CABasicAnimation = CABasicAnimation(keyPath: "transform.rotation.z")
         rotation.toValue = Double.pi * 2
-        rotation.duration = 50 // or however long you want ...
+        rotation.duration = 40
         rotation.isCumulative = true
         rotation.repeatCount = Float.greatestFiniteMagnitude
         gradient.layer.add(rotation, forKey: "rotationAnimation")
@@ -279,10 +285,19 @@ class NowPlayingController: UIViewController {
                           options: .transitionCrossDissolve,
                           animations: { self.gradient.image = UIImage(named: self.gradients[selection]) },
                           completion: nil)
-        
+    }
+    
+    @objc private func nextGradient() {
+        let selection = Int.random(in : 0 ..< gradients.count)
+        UIView.transition(with: self.gradient,
+                          duration:0.5,
+                          options: .transitionCrossDissolve,
+                          animations: { self.gradient.image = UIImage(named: self.gradients[selection]) },
+                          completion: nil)
     }
     
     private func initialAnimation() {
+        // animate in the UI
         icon.animate()
         nwLabel.animate()
         qualityBtn.animate()
@@ -297,7 +312,12 @@ class NowPlayingController: UIViewController {
     
     private func addWallpaperChanger() -> UITapGestureRecognizer {
         let gesture = UITapGestureRecognizer(target: self, action: #selector(self.changeWallpaper))
-        //gesture.delegate = self
+        gesture.numberOfTapsRequired = 2
+        return gesture
+    }
+    
+    private func addGradientChanger() -> UITapGestureRecognizer {
+        let gesture = UITapGestureRecognizer(target: self, action: #selector(self.changeGradient))
         gesture.numberOfTapsRequired = 2
         return gesture
     }
@@ -394,7 +414,7 @@ class NowPlayingController: UIViewController {
         
         let buttonSize: CGFloat = {
             var size = CGFloat()
-            if deviceHeight > 736 {
+            if deviceHeight > 666 {
                 size = 50
             } else {
                 size = 40
@@ -407,8 +427,6 @@ class NowPlayingController: UIViewController {
         background.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
         background.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
         background.layer.opacity = 0.4
-        
-        
         
         if deviceHeight == 768 || deviceHeight == 834 || deviceHeight > 1000 {
             
@@ -438,7 +456,7 @@ class NowPlayingController: UIViewController {
             progressView.widthAnchor.constraint(equalTo: artworkImageView.widthAnchor).isActive = true
             
             icon.leadingAnchor.constraint(equalTo: artworkImageView.leadingAnchor).isActive = true
-            icon.bottomAnchor.constraint(equalTo: artworkImageView.topAnchor, constant: -20).isActive = true
+            icon.bottomAnchor.constraint(equalTo: artworkImageView.topAnchor, constant: -16).isActive = true
             icon.heightAnchor.constraint(equalToConstant: 20).isActive = true
             icon.widthAnchor.constraint(equalToConstant: 20).isActive = true
             
